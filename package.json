@@ -1,0 +1,18 @@
+{
+  "name": "fcc-chart-stock-market",
+  "version": "1.0.0",
+  "description": "A full stack JavaScript app which chart the stock market",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "otaree",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "socket.io": "^2.1.1"
+  }
+}
