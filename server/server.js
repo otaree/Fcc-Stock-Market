@@ -20,13 +20,23 @@ const io = require("socket.io")(server);
 io.on('connection', socket => {
     console.log("New user connected");
 
-    socket.on("FETCH_DATA", data => {
-        getCompanyStockData(data.time, data.symbols)
-            .then(stocksData => {
-                io.sockets.emit("SEND_DATA", { stocksData });
-            })
-            .catch(error => {
-                io.sockets.emit("ERROR", { error })
-            });
+    socket.on("FETCH_DATA", async data => {
+
+        try {
+            const stocksData = await getCompanyStockData(data.time, data.symbols);
+            io.sockets.emit("SEND_DATA", { stocksData });
+            console.log("haha good");
+        } catch (e) {
+            socket.emit("ERROR", { error: e });
+            console.log("haha bad");            
+        }
+
+        // getCompanyStockData(data.time, data.symbols)
+        //     .then(stocksData => {
+        //         io.sockets.emit("SEND_DATA", { stocksData });
+        //     })
+        //     .catch(error => {
+        //         io.sockets.emit("ERROR", { error })
+        //     });
     });
 });
