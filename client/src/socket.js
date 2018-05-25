@@ -1,6 +1,7 @@
 import openSocket from 'socket.io-client';
 
-export const socket = openSocket("http://localhost:5000");
+// export const socket = openSocket("http://localhost:5000");
+export const socket = openSocket("https://fcc-chart-stock-market-app.glitch.me/");
 
 export const fetchStocks = () => {
     socket.emit("FETCH_STOCKS", {  });
