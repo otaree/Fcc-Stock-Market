@@ -13,7 +13,6 @@ export default class Symbols extends Component {
         e.preventDefault();
         if (this.state.symbol.trim().length < 1) return;
         const symbols = this.props.companies.map(company => company.symbol.toLowerCase());
-        console.log(symbols);
         if (symbols.indexOf(this.state.symbol.toLowerCase()) !== -1) return;                    
         this.props.addSymbol(this.state.symbol);
     }
@@ -25,11 +24,11 @@ export default class Symbols extends Component {
                 {
                     this.props.companies.map(company => {
                         return (
-                            <div key={company.symbol} className="column is-4">
+                            <div key={company._id} className="column is-4">
                                 <div className="box">
                                     <div className="is-clearfix">
                                         <p className="has-text-weight-bold is-size-4 is-pulled-left">{company.symbol}</p>
-                                        <button className="delete is-pulled-right" onClick={e => this.props.removeSymbol(company.symbol) } ></button>                                
+                                        <button className="delete is-pulled-right" onClick={e => this.props.removeSymbol(company._id) } ></button>                                
                                     </div>
                                     <p>{company.companyName} ({company.symbol}) Prices, Dividends, Splits and Trading Volume</p>
                                 </div>
@@ -53,10 +52,13 @@ export default class Symbols extends Component {
                                     />
                                 </div>
                                 <div className="control">
-                                    <button className="button is-primary">Add</button>
+                                    <button className="button is-primary" disabled={this.props.isAdding}>Add</button>
                                 </div>
                             </div>
                         </form>
+                        { this.props.error.length > 0 && (
+                            <div className="is-size-6 has-text-danger">{this.props.error}</div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import GoMarkGithub from "react-icons/lib/go/mark-github";
 
-import { socket, fetchData } from "../socket";
+import { socket, fetchStocks, addStock, removeStock } from "../socket";
 import TimeControls from './TimeControls/TimeControls';
 import Chart from './Chart/Chart';
 import Symbols from './Symbols/Symbols';
+import Footer from './Footer/Footer';
 
 export default class App extends Component {
     constructor() {
@@ -15,40 +15,66 @@ export default class App extends Component {
                 stocks: data.stocksData
             });
         });
-        socket.on("ERROR", error => {
-            console.log("ERROR", error);
+
+        socket.on("STOCKS_DATA", data => {
+            this.setState({
+                companies: data.stocks.map(stock => ({ symbol: stock.symbol, name: stock.name, _id: stock._id })),
+                stocks: data.stocks
+            });
+        });
+
+        socket.on("ADDED_STOCK", data => {
+            this.setState(prevState => {
+                return {
+                    companies: [...prevState.companies, { symbol: data.stock.symbol, name: data.stock.name, _id: data.stock._id }],
+                    stocks: [...prevState.stocks, data.stock],
+                    adding: !prevState.adding,
+                    error: ""
+                }
+            });            
+        });
+
+        socket.on("REMOVED_STOCK", data => {
+            this.setState(prevState => {
+                return {
+                    companies: prevState.companies.filter(company => company._id !== data._id ),
+                    stocks: prevState.stocks.filter(stock => stock._id !== data._id)
+                };
+            });            
+        });
+        
+        socket.on("ERROR", e => {
+            this.setState({ error: e.error, adding: false });
         });
     }
-    
+
     state = {
         stocks: [],
         companies: [],
-        time: "1m"
+        time: "onemonth",
+        adding: false,
+        error: ""
     };
-    // componentDidMount() {
-    //     // fetchData("1m", ["aapl", "fb"]);
-    // }
+
+    componentDidMount() {
+        fetchStocks();
+    }
 
     changeTimeHandler = time => {
-        fetchData(time, this.state.companies.map(company => company.symbol ));
         this.setState({ time });
     };
 
     addSymbolHandler = symbol => {
-        if (this.state.companies.length > 0) {
-            fetchData(this.state.time, [...this.state.companies.map(company => company.symbol), symbol]);            
-        } else { 
-            fetchData(this.state.time, [ symbol]);                        
-        }
-    };
-
-    removeSymbolHandler = symbol => {
         this.setState(prevState => {
             return {
-                stocks: prevState.stocks.filter(stock => stock.symbol !== symbol),
-                companies: prevState.companies.filter(company => company.symbol !== symbol)
+                adding: !prevState.adding
             };
         });
+       addStock(symbol);
+    };
+
+    removeSymbolHandler = _id => {
+        removeStock(_id);
     }
 
     render() {
@@ -58,27 +84,16 @@ export default class App extends Component {
                    <div className="box has-background-light">
                         <p className="title has-text-centered">stock</p>
                         { this.state.companies.length > 0 && <TimeControls changeTime={this.changeTimeHandler} selected={this.state.time} />}
-                        { this.state.stocks.length > 0 && <Chart stocks={this.state.stocks} /> }
+                        { this.state.stocks.length > 0 && <Chart stocks={this.state.stocks} time={this.state.time} /> }
                         <Symbols 
+                            isAdding={this.state.adding}
                             addSymbol={this.addSymbolHandler}
                             removeSymbol={this.removeSymbolHandler} 
-                            companies={this.state.companies} 
+                            companies={this.state.companies}
+                            error={this.state.error} 
                         />
                    </div>
-                   <footer className="footer  has-background-white">
-                        <div className="level">
-                            <div className="level-item" title="@otaree">
-                                <a href="https://github.com/otaree/Fcc-nightlife-coordination-app" className="" rel="noopener noreferrer" target="_blank">
-                                    <GoMarkGithub
-                                        size={30} 
-                                        style={{
-                                            color: "#888"
-                                        }}
-                                    />
-                                </a>
-                            </div>
-                        </div>
-                   </footer>
+                   <Footer />
                 </div>
             </section>
         );

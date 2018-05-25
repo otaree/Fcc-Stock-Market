@@ -4,11 +4,11 @@ const TimeControls = props => {
     return (
         <div className="level">
             <div className="level-item">
-                <button className={`button ${props.selected === "1m" && "is-active"}`} onClick={e => props.changeTime("1m")} >1m</button>
-                <button className={`button ${props.selected === "3m" && "is-active"}`} onClick={e => props.changeTime("3m")}>3m</button>
-                <button className={`button ${props.selected === "6m" && "is-active"}`} onClick={e => props.changeTime("6m")}>6m</button>
-                <button className={`button ${props.selected === "1y" && "is-active"}`} onClick={e => props.changeTime("1y")}>1y</button>
-                <button className={`button ${props.selected === "5y" && "is-active"}`} onClick={e => props.changeTime("5y")}>5y</button>
+                <button className={`button ${props.selected === "onemonth" ? "is-active" : "" }`} onClick={e => props.changeTime("onemonth")} >1m</button>
+                <button className={`button ${props.selected === "threemonth" ? "is-active" : "" }`} onClick={e => props.changeTime("threemonth")}>3m</button>
+                <button className={`button ${props.selected === "sixmonth" ? "is-active" : "" }`} onClick={e => props.changeTime("sixmonth")}>6m</button>
+                <button className={`button ${props.selected === "oneyear" ? "is-active" : "" }`} onClick={e => props.changeTime("oneyear")}>1y</button>
+                <button className={`button ${props.selected === "fiveyear" ? "is-active" : "" }`} onClick={e => props.changeTime("fiveyear")}>5y</button>
             </div>
         </div>
     );

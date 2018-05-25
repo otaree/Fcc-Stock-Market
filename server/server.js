@@ -1,7 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 
-const { getCompanyStockData } = require("./utilities/stockAPI");
+const { mongoose } = require('./db/mongoose');
+const { Stock } = require("./models/Stock");
+const { getStocks, addStock, removeStock } = require("./utilities/stockAPI");
 
 const app = express();
 
@@ -20,23 +22,35 @@ const io = require("socket.io")(server);
 io.on('connection', socket => {
     console.log("New user connected");
 
-    socket.on("FETCH_DATA", async data => {
+    socket.on("FETCH_STOCKS", async data => {
 
         try {
-            const stocksData = await getCompanyStockData(data.time, data.symbols);
-            io.sockets.emit("SEND_DATA", { stocksData });
-            console.log("haha good");
+            const stocks = await getStocks();
+
+            socket.emit("STOCKS_DATA", { stocks });
         } catch (e) {
             socket.emit("ERROR", { error: e });
-            console.log("haha bad");            
         }
+    });
 
-        // getCompanyStockData(data.time, data.symbols)
-        //     .then(stocksData => {
-        //         io.sockets.emit("SEND_DATA", { stocksData });
-        //     })
-        //     .catch(error => {
-        //         io.sockets.emit("ERROR", { error })
-        //     });
+    socket.on("ADD_STOCK", async data => {
+
+        try {
+            const stock = await addStock(data.symbol);
+
+            io.sockets.emit("ADDED_STOCK", { stock });
+        } catch (e) {
+            socket.emit("ERROR", { error: e });
+        }
+    });
+
+    socket.on("REMOVE_STOCK", async data => {
+
+        try {
+            const stock = await removeStock(data._id);
+            io.sockets.emit("REMOVED_STOCK", { _id: stock._id });
+        } catch (e) {
+            socket.emit("ERROR", { error :e });
+        }
     });
 });
