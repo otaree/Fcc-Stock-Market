@@ -9,17 +9,12 @@ import Footer from './Footer/Footer';
 export default class App extends Component {
     constructor() {
         super();
-        socket.on("SEND_DATA", data => {
-            this.setState({
-                companies: data.stocksData.map(stock => ({ symbol: stock.symbol, companyName: stock.companyName})),
-                stocks: data.stocksData
-            });
-        });
 
         socket.on("STOCKS_DATA", data => {
             this.setState({
                 companies: data.stocks.map(stock => ({ symbol: stock.symbol, name: stock.name, _id: stock._id })),
-                stocks: data.stocks
+                stocks: data.stocks,
+                loading: false                
             });
         });
 
@@ -53,11 +48,13 @@ export default class App extends Component {
         companies: [],
         time: "onemonth",
         adding: false,
-        error: ""
+        error: "",
+        loading: false
     };
 
     componentDidMount() {
         fetchStocks();
+        this.setState({ loading: true });
     }
 
     changeTimeHandler = time => {
@@ -78,13 +75,26 @@ export default class App extends Component {
     }
 
     render() {
+        let stocksChart = (
+            <div className="level">
+                <div className="level-item">
+                    <div className="loader"></div>                      
+                </div>
+            </div>
+        );
+        if (!this.state.loading && this.state.stocks.length < 1) {
+            stocksChart = <p className="title has-text-centered">No Stock</p>;
+        } else if (!this.state.loading && this.state.stocks.length > 0) {
+            stocksChart = <Chart stocks={this.state.stocks} time={this.state.time} />;
+        }
+
         return (
             <section className="section">
                 <div className="container">
                    <div className="box has-background-light">
                         <p className="title has-text-centered">stock</p>
                         { this.state.companies.length > 0 && <TimeControls changeTime={this.changeTimeHandler} selected={this.state.time} />}
-                        { this.state.stocks.length > 0 && <Chart stocks={this.state.stocks} time={this.state.time} /> }
+                        { stocksChart }
                         <Symbols 
                             isAdding={this.state.adding}
                             addSymbol={this.addSymbolHandler}

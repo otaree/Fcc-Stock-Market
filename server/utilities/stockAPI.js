@@ -143,4 +143,4 @@ const removeStock = async id => {
 
 
 
-module.exports = { getStocks, addStock, removeStock, getCompanyInfo, getCompanyStockData };
+module.exports = { getStocks, addStock, removeStock, };
